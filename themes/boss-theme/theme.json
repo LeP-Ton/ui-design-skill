@@ -8,9 +8,6 @@
   "requires": [
     { "name": "antd", "source": "https://github.com/ant-design/ant-design" }
   ],
-  "preview": ["examples/dashboard.png", "examples/list-page.png"],
-  "repository": "https://github.com/example/ui-theme-hub",
-  "license": "MIT",
   "tokens": {
     "color": {
       "primary": "#1677ff",

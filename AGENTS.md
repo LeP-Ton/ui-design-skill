@@ -5,18 +5,16 @@
 
 ## 架构
 - **SKILL.md**：完整引擎逻辑（场景识别+主题加载+主题搜索安装+技术选择+模板匹配+物料匹配+代码生成），Claude 触发时直接读取
-- **统一主题仓库（ui-theme-hub）**：集中管理所有主题的 Git 仓库（`https://github.com/example/ui-theme-hub`），AI 从中发现和安装主题
+- **统一主题仓库（ui-theme-hub）**：集中管理所有主题的 Git 仓库（`https://github.com/LeP-Ton/ui-theme-hub/`），AI 从中发现和安装主题
 - **themes/**：本地已安装 theme 目录，每个 theme 从统一仓库安装，自带 theme.json + patterns/standards/assets/examples
 
 ## Theme 结构
-theme.json 兼作市场介绍页和运行时配置：
-- name/version/description/author/scene/tags：市场展示信息
+theme.json 包含介绍信息和运行时配置：
+- name/version/description/author/scene/tags：介绍信息
 - requires：对象数组，每项含 name（依赖标识，推断代码风格）和 source（开源地址，AI 不熟悉时从中获取 API）。只放外部依赖，浏览器原生能力（CSS Variables）不列入
-- preview：预览截图路径数组，引用 examples/ 中的图片
-- repository：统一主题仓库地址（所有主题指向同一个 ui-theme-hub 仓库）
-- license：开源协议
 - tokens：6 维度（color/spacing/typography/border/shadow/motion）+ extended 扩展
-- examples/：市场预览截图（.png/.webp），不是代码示例
+- examples/：预览截图（.png/.webp），AI 扫描目录自动发现
+- repository/license/preview：不需要在 theme.json 中声明，由统一主题仓库（ui-theme-hub）管理
 
 ## 已安装 Theme
 | 名称 | 场景 | 技术栈 |

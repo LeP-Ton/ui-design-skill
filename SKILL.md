@@ -52,7 +52,7 @@ license: Complete terms in LICENSE.txt
 
 ### Phase 2.5: 主题搜索与安装
 
-统一主题仓库：`https://github.com/example/ui-theme-hub`
+统一主题仓库：`https://github.com/LeP-Ton/ui-theme-hub/`
 
 当用户提到"搜索主题"、"安装主题"、"有哪些主题"时触发：
 
@@ -114,7 +114,7 @@ license: Complete terms in LICENSE.txt
 
 ```
 {theme-name}/
-├── theme.json              # 必需：市场介绍 + tokens（单文件）
+├── theme.json              # 必需：介绍页 + tokens（单文件）
 ├── patterns/               # 可选：页面/区块模板
 │   ├── pages/
 │   └── blocks/
@@ -139,9 +139,6 @@ license: Complete terms in LICENSE.txt
   "requires": [
     { "name": "antd", "source": "https://github.com/ant-design/ant-design" }
   ],
-  "preview": ["examples/dashboard.png", "examples/list-page.png"],
-  "repository": "https://github.com/example/boss-theme.git",
-  "license": "MIT",
   "tokens": {
     "color": {
       "primary": "#1677ff",
