@@ -25,11 +25,11 @@ license: Complete terms in LICENSE.txt
 
 ### Phase 1: 场景识别
 
-扫描主题仓库所有 `themes/` 下的theme.json，根据 `scene` + `tags` + `description` 语义匹配用户意图：
+读取统一主题仓库的 `docs/themes-summary.json`，根据 `scene` + `tags` + `description` 语义匹配用户意图：
 
-1. 读取每个 theme.json 的 `scene`、`tags`、`description`
+1. 从 themes-summary.json 中提取各 theme 的 `scene`、`tags`、`description`
 2. 将用户输入与各 theme 的语义信息做匹配
-3. 匹配到场景后，若该场景只有一个 theme 则询问是否使用，多个则询问选择
+3. 匹配到场景后，若该场景只有一个 theme 则直接使用，多个则询问选择
 4. 未匹配到任何场景时，提示没有匹配的主题
 
 识别优先级：用户指定场景 > 用户指定 theme > 语义匹配
