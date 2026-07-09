@@ -33,6 +33,7 @@ theme.json 包含介绍信息和运行时配置：
 - 删除了 registry 字段：技术栈由 requires 依赖推断，自定义组件信息由 patterns/ 提供，registry 整体冗余
 - 删除了 core/ 目录：adapters 对 AI 无增量价值，standards 的内容 AI 本身就知道，core 层已无存在必要
 - 统一主题仓库（ui-theme-hub）：所有主题集中在一个 Git 仓库中管理，AI 从该仓库发现和安装主题，新主题通过 PR 贡献。仓库位于 ui-design-skill 同级目录
+- 删除了硬编码场景表：场景识别改为动态语义匹配（读取 theme.json 的 scene/tags/description），新主题发布无需更新 SKILL.md
 
 ## Token 设计思路
 - **格式标准**：参考 W3C Design Tokens Community Group（https://design-tokens.github.io/community-group/format/）的分组思路（color/spacing/typography/border/shadow/motion），但做了简化——W3C 标准需要 `$value`、`$type` 嵌套，对 Claude 读取不友好，所以直接用扁平 JSON

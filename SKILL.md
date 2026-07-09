@@ -10,37 +10,40 @@ license: Complete terms in LICENSE.txt
 
 - **Theme 可以独立演进**：每个 theme 自带完整的设计资产
 - **设计师负责 Theme**，**AI 负责组装**
-- **统一主题仓库**：所有主题集中在一个 Git 仓库（`ui-theme-hub`）中管理，AI 从该仓库发现和安装主题，规范靠 SKILL.md 定义，质量靠 AI 安装时校验
+- **统一主题仓库**：所有主题集中在一个 Git 仓库（`ui-theme-hub`）中管理，AI 从该仓库发现和安装主题，统一主题仓库地址：`https://github.com/LeP-Ton/ui-theme-hub/`
+规范靠 SKILL.md 定义，质量靠 AI 安装时校验
+
+## 主题搜索与安装
+
+当用户提到"搜索主题"、"安装主题"、"有哪些主题"时触发：
+
+- **安装**：从统一主题仓库复制需要的主题目录到本地 `themes/`，然后校验 theme.json 格式合规性
+- **卸载**：删除 `themes/{theme-name}/` 目录
+- **查询**：先列本地已安装主题，再从统一主题仓库列出可安装主题，展示 name/description/scene/tags/preview
 
 ## 工作流（6 阶段）
 
 ### Phase 1: 场景识别
 
-根据用户输入中的关键词识别场景：
+扫描主题仓库所有 `themes/` 下的theme.json，根据 `scene` + `tags` + `description` 语义匹配用户意图：
 
-| 场景 | 关键词 | 默认 Theme |
-|------|--------|-----------|
-| `b-end` | 管理、后台、列表、表格、表单、仪表盘、数据看板 | boss-theme |
-| `game` | 游戏、HUD、背包、技能栏、角色面板 | game-theme |
-| `c-end` | 首页、产品、个人中心、社交、电商 | apple-theme |
-| `marketing` | 落地页、营销、推广、Landing、Banner | apple-theme |
-| `mobile` | 移动端、H5、小程序、App、手机 | apple-theme |
+1. 读取每个 theme.json 的 `scene`、`tags`、`description`
+2. 将用户输入与各 theme 的语义信息做匹配
+3. 匹配到场景后，若该场景只有一个 theme 则询问是否使用，多个则询问选择
+4. 未匹配到任何场景时，提示没有匹配的主题
 
-识别优先级：用户指定场景 > 用户指定 theme > 关键词匹配 > 简短询问一次
+识别优先级：用户指定场景 > 用户指定 theme > 语义匹配
 
 ### Phase 2: 主题加载
 
-根据场景查找已安装 theme：
+加载 Phase 1 识别到的 theme：
 
-1. 扫描 `themes/` 目录下的子目录
-2. 读取每个子目录的 `theme.json`（市场介绍 + tokens）
-3. 匹配场景对应的默认 theme
-4. 若用户指定 theme 名，直接加载
-5. 若该场景的 theme 未安装，从统一主题仓库安装到 `themes/`
+1. 若用户指定 theme 名，直接加载当前skill中 `themes/` 目录已安装的 theme
+2. 若识别到的 theme 未安装，从统一主题仓库安装到本skill的`themes/`
 
 加载 theme 后，按需读取：
 - `theme.json` 中的 `tokens`：Design Token
-- `patterns/`：页面/区块模板
+- `patterns/`：页面/组件模板
 - `standards/`：设计标准规范
 - `assets/`：物料素材
 
@@ -49,17 +52,6 @@ license: Complete terms in LICENSE.txt
 - tokens 6 维度完整：`color`、`spacing`、`typography`、`border`、`shadow`、`motion`
 - color 基础字段完整：`primary`、`background.base`、`text.primary`、`border.default`
 - 若校验不通过，提示用户修复或更换 theme
-
-### Phase 2.5: 主题搜索与安装
-
-统一主题仓库：`https://github.com/LeP-Ton/ui-theme-hub/`
-
-当用户提到"搜索主题"、"安装主题"、"有哪些主题"时触发：
-
-- **搜索**：从统一主题仓库列出所有可用主题（读取各主题目录的 theme.json，展示 name/description/scene/tags/preview）
-- **安装**：从统一主题仓库复制需要的主题目录到本地 `themes/`，然后校验 theme.json 格式合规性
-- **卸载**：删除 `themes/{theme-name}/` 目录
-- **查询**：先列本地已安装主题，再从统一主题仓库列出可安装主题
 
 ### Phase 3: 技术体系选择
 
@@ -273,7 +265,7 @@ license: Complete terms in LICENSE.txt
 
 - **安装**：从统一主题仓库复制主题目录到 `themes/`，或手动放入 `themes/`。安装后自动校验 theme.json 格式合规性
 - **卸载**：删除 `themes/{theme-name}/` 目录即可
-- **查询**：先列本地已安装主题，再按场景表列出可安装主题
+- **查询**：先列本地已安装主题，再从统一主题仓库列出可安装主题（按 `scene`/`tags` 分组展示）
 
 ## 引用路径
 

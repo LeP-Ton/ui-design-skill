@@ -1,6 +1,7 @@
 # AgentDocs 索引
 
 ## 当前变更文档
+`workflow/20260610093000-del-scene-table-4phases.md` - 删除 SKILL.md 硬编码场景表，场景识别改为动态语义匹配
 `workflow/20260609181500-init-ui-theme-hub.md` - 初始化 ui-theme-hub 统一主题仓库
 `workflow/20260609180000-unified-theme-repo.md` - 统一主题仓库：从去中心化改为集中管理
 `workflow/20260609174500-decentralized-market.md` - 去中心化市场：场景索引内置 SKILL.md + AI 安装时校验
