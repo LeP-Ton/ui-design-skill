@@ -15,11 +15,18 @@ license: Complete terms in LICENSE.txt
 
 ## 主题搜索与安装
 
+主题安装目标为本 SKILL.md 所在目录下的 `themes/`（即 AI 读取此文件时，此文件的父目录就是 skill 根目录，记为 `{SKILL_DIR}`）。
+
 当用户提到"搜索主题"、"安装主题"、"有哪些主题"时触发：
 
-- **安装**：从统一主题仓库复制需要的主题目录到本地 `themes/`，然后校验 theme.json 格式合规性
-- **卸载**：删除 `themes/{theme-name}/` 目录
-- **查询**：先列本地已安装主题，再从统一主题仓库列出可安装主题，展示 name/description/scene/tags/preview
+- **查询**：从 themes-summary.json 按条件筛选主题，展示 name/description/scene/tags。若用户想浏览预览图和交互式筛选，提供带参数的主题市场链接：`https://le-p-ton.github.io/ui-theme-hub/?scene={scene}&tags={tags}`
+- **安装**：从 GitHub Pages 下载主题 zip 包并解压到 `{SKILL_DIR}/themes/`，然后校验完整性：
+  ```
+  curl -L https://le-p-ton.github.io/ui-theme-hub/packages/{theme-id}.zip -o /tmp/{theme-id}.zip \
+    && unzip -o /tmp/{theme-id}.zip -d {SKILL_DIR}/themes/ \
+    && rm /tmp/{theme-id}.zip
+  ```
+- **卸载**：删除 `{SKILL_DIR}/themes/{theme-name}/` 目录
 
 ## 工作流（6 阶段）
 
@@ -39,7 +46,7 @@ license: Complete terms in LICENSE.txt
 加载 Phase 1 识别到的 theme：
 
 1. 若用户指定 theme 名，直接加载当前skill中 `themes/` 目录已安装的 theme
-2. 若识别到的 theme 未安装，从统一主题仓库安装到本skill的`themes/`
+2. 若识别到的 theme 未安装，从 GitHub Pages 下载主题 zip 包解压到 skill 的 `themes/` 目录
 
 加载 theme 后，按需读取：
 - `theme.json` 中的 `tokens`：Design Token
@@ -47,11 +54,12 @@ license: Complete terms in LICENSE.txt
 - `standards/`：设计标准规范
 - `assets/`：物料素材
 
-**安装校验**：安装 theme 后，校验 theme.json 格式是否合规：
+**安装校验**：安装 theme 后，校验完整性：
+- 必需目录存在：`patterns/`（若缺失提示重新安装）
 - 必需字段完整：`name`、`version`、`scene`、`tokens`
 - tokens 6 维度完整：`color`、`spacing`、`typography`、`border`、`shadow`、`motion`
 - color 基础字段完整：`primary`、`background.base`、`text.primary`、`border.default`
-- 若校验不通过，提示用户修复或更换 theme
+- 若校验不通过，提示用户修复或重新安装
 
 ### Phase 3: 技术体系选择
 
@@ -260,13 +268,3 @@ license: Complete terms in LICENSE.txt
 | `motion.easing.accelerate` | 加速缓动 | 退出动画 |
 
 每个 token 维度都可添加 `extended` 字段存放场景专属扩展值，`extended` 中的字段由 theme 自定义，需在 theme 的 `standards/` 中说明其用途。
-
-## Theme 安装与卸载
-
-- **安装**：从统一主题仓库复制主题目录到 `themes/`，或手动放入 `themes/`。安装后自动校验 theme.json 格式合规性
-- **卸载**：删除 `themes/{theme-name}/` 目录即可
-- **查询**：先列本地已安装主题，再从统一主题仓库列出可安装主题（按 `scene`/`tags` 分组展示）
-
-## 引用路径
-
-- Theme 内容：`themes/{theme-name}/` 下各子目录

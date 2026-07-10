@@ -35,6 +35,7 @@ theme.json 包含介绍信息和运行时配置：
 - 统一主题仓库（ui-theme-hub）：所有主题集中在一个 Git 仓库中管理，AI 从该仓库发现和安装主题，新主题通过 PR 贡献。仓库位于 ui-design-skill 同级目录
 - 删除了硬编码场景表：场景识别改为动态语义匹配（读取 themes-summary.json 的 scene/tags/description），新主题发布无需更新 SKILL.md
 - themes-index.json 拆为两层：themes-summary.json（轻量索引，供列表页和 AI 场景识别）+ themes/{id}.json（单主题全量，供详情页按需加载）。原全量索引已废弃
+- 主题安装方式改为 zip 下载（curl + unzip），避免 AI 手动复制遗漏文件。安装源：GitHub Pages packages/{theme-id}.zip
 
 ## Token 设计思路
 - **格式标准**：参考 W3C Design Tokens Community Group（https://design-tokens.github.io/community-group/format/）的分组思路（color/spacing/typography/border/shadow/motion），但做了简化——W3C 标准需要 `$value`、`$type` 嵌套，对 Claude 读取不友好，所以直接用扁平 JSON

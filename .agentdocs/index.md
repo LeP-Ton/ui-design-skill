@@ -1,6 +1,7 @@
 # AgentDocs 索引
 
 ## 当前变更文档
+`workflow/20260710160000-zip-install.md` - 主题安装方式改为 zip 下载，提升稳定性
 `workflow/20260706154000-split-index-two-layer.md` - themes-index.json 拆为两层：轻量索引 + 按需详情
 `workflow/20260610093000-del-scene-table-4phases.md` - 删除 SKILL.md 硬编码场景表，场景识别改为动态语义匹配
 `workflow/20260609181500-init-ui-theme-hub.md` - 初始化 ui-theme-hub 统一主题仓库
