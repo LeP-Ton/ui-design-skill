@@ -6,7 +6,8 @@
 ## 架构
 - **SKILL.md**：完整引擎逻辑（场景识别+主题加载+主题搜索安装+技术选择+模板匹配+物料匹配+代码生成），Claude 触发时直接读取
 - **统一主题仓库（ui-theme-hub）**：集中管理所有主题的 Git 仓库（`https://github.com/LeP-Ton/ui-theme-hub/`），AI 从中发现和安装主题
-- **themes/**：本地已安装 theme 目录，每个 theme 从统一仓库安装，自带 theme.json + patterns/standards/assets/examples
+- **theme-config.json**：主题目录配置文件，`themeDir` 字段指定主题存放目录（默认 `./themes/`），支持绝对路径和相对路径
+- **themes/**：本地已安装 theme 目录（默认），每个 theme 从统一仓库安装，自带 theme.json + patterns/standards/assets/examples
 
 ## Theme 结构
 theme.json 包含介绍信息和运行时配置：

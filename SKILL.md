@@ -15,18 +15,41 @@ license: Complete terms in LICENSE.txt
 
 ## 主题搜索与安装
 
-主题安装目标为本 SKILL.md 所在目录下的 `themes/`（即 AI 读取此文件时，此文件的父目录就是 skill 根目录，记为 `{SKILL_DIR}`）。
+主题安装目标由 `theme-config.json`（与 SKILL.md 同目录）中的 `themeDir` 字段决定。`themeDir` 必须为绝对路径（如 `/Users/xxx/project/themes/`），不支持相对路径。首次使用时需先设置 `themeDir`，否则提示用户配置。
 
-当用户提到"搜索主题"、"安装主题"、"有哪些主题"时触发：
+`{themeDir}` 指 theme-config.json 中配置的主题存放绝对路径。
 
-- **查询**：从 themes-summary.json 按条件筛选主题，展示 name/description/scene/tags。若用户想浏览预览图和交互式筛选，提供带参数的主题市场链接：`https://le-p-ton.github.io/ui-theme-hub/?scene={scene}&tags={tags}`
-- **安装**：从 GitHub Pages 下载主题 zip 包并解压到 `{SKILL_DIR}/themes/`，然后校验完整性：
-  ```
-  curl -L https://le-p-ton.github.io/ui-theme-hub/packages/{theme-id}.zip -o /tmp/{theme-id}.zip \
-    && unzip -o /tmp/{theme-id}.zip -d {SKILL_DIR}/themes/ \
-    && rm /tmp/{theme-id}.zip
-  ```
-- **卸载**：删除 `{SKILL_DIR}/themes/{theme-name}/` 目录
+- 当用户提到"搜索主题"、"查询主题"、"有哪些主题"等要求时触发：
+
+  **查询**：从 [themes-summary.json](https://raw.githubusercontent.com/LeP-Ton/ui-theme-hub/main/docs/themes-summary.json) 按条件筛选主题，展示 name/description/scene/tags
+
+- 当用户提到"安装主题"、"下载主题"、"使用主题"等要求时触发：
+  **安装**：从 GitHub Pages 下载主题 zip 包并解压到 `{themeDir}`，然后校验完整性。安装前先确保 `{themeDir}` 目录存在：
+    ```
+    mkdir -p {themeDir} \
+      && curl -fL https://lep-ton.github.io/ui-theme-hub/packages/{theme-id}.zip -o /tmp/{theme-id}.zip \
+      && unzip -t /tmp/{theme-id}.zip \
+      && unzip -o /tmp/{theme-id}.zip -d {themeDir} \
+      && rm /tmp/{theme-id}.zip
+    ```
+    说明：`-f` 让 curl 在 HTTP 错误时失败（不生成损坏文件），`unzip -t` 先验证 zip 完整性再解压，`mkdir -p` 确保目标目录存在
+
+- 当用户提到"卸载主题"、"删除主题"、"去除主题"等要求时触发：
+  **卸载**：删除 `{themeDir}/{theme-name}/` 目录
+
+- 当用户提到"访问主题仓库"，"查看主题仓库"，"打开主题仓库"等要求时触发：
+  **访问**：从`{themeDir}` 目录获取本地已安装主题 ID，主题市场链接支持的 URL 参数如下：
+
+    | 参数 | 用途 | 示例 |
+    |------|------|------|
+    | `scene` | 按场景筛选 | `?scene=enterprise` |
+    | `tags` | 按标签筛选（逗号分隔） | `?tags=blue,management` |
+    | `q` | 搜索关键词回填 | `?q=管理` |
+    | `installed` | 已安装主题 ID 排前并标记"已下载" | `?installed=boss-theme-blue,apple-theme` |
+
+    组合示例：`https://lep-ton.github.io/ui-theme-hub/?scene=enterprise&installed=boss-theme-blue`
+
+    按照示例打开浏览器访问主题市场
 
 ## 工作流（6 阶段）
 
@@ -35,18 +58,19 @@ license: Complete terms in LICENSE.txt
 读取统一主题仓库的 `docs/themes-summary.json`，根据 `scene` + `tags` + `description` 语义匹配用户意图：
 
 1. 从 themes-summary.json 中提取各 theme 的 `scene`、`tags`、`description`
-2. 将用户输入与各 theme 的语义信息做匹配
-3. 匹配到场景后，若该场景只有一个 theme 则直接使用，多个则询问选择
-4. 未匹配到任何场景时，提示没有匹配的主题
+2. 将用户输入与各 theme 的 `scene`、`tags`、`description` 语义信息做匹配
+3. 匹配到主题后，若匹配结果只有一个 theme 则直接使用，多个则询问选择
+4. 未匹配到任何主题时，提示没有匹配的主题
 
 识别优先级：用户指定场景 > 用户指定 theme > 语义匹配
 
 ### Phase 2: 主题加载
 
-加载 Phase 1 识别到的 theme：
+加载 Phase 1 选择的 theme：
 
-1. 若用户指定 theme 名，直接加载当前skill中 `themes/` 目录已安装的 theme
-2. 若识别到的 theme 未安装，从 GitHub Pages 下载主题 zip 包解压到 skill 的 `themes/` 目录
+1. 先读取 `theme-config.json` 获取 `themeDir`（绝对路径，若未配置则提示用户设置）
+2. 若用户指定 theme 名，直接加载 `{themeDir}` 目录已安装的 theme
+3. 若识别到的 theme 未安装，从 GitHub Pages 下载主题 zip 包解压到 `{themeDir}`
 
 加载 theme 后，按需读取：
 - `theme.json` 中的 `tokens`：Design Token
