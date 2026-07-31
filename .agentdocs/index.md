@@ -1,6 +1,7 @@
 # AgentDocs 索引
 
 ## 当前变更文档
+`workflow/20260731153852-local-theme-detect-command.md` - 本地主题检索补"零维护"探测命令（替代索引文件，zsh/bash 兼容）
 `workflow/20260731140000-revert-to-platform-agnostic.md` - 回退 plugin/hook，改为平台无关手动调用 skill（保留骨架化 + SDO）
 `workflow/20260731133000-superpowers-auto-trigger-plugin.md` - 借鉴 superpowers 自动触发机制：升级为 Plugin + SessionStart hook 注入 bootstrap（已回退）
 `workflow/20260713093000-install-stability-themedir.md` - 主题安装稳定性提升 + themeDir 配置化 + URL 修复

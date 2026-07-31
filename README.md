@@ -12,7 +12,7 @@
 ## 架构
 
 ```
-SKILL.md（骨架）+ references/（按需加载）+ themes/（设计资产）
+SKILL.md（骨架）+ references/（按需加载）+ {themeDir}（设计资产，用户配置的本地主题目录）
 ```
 
 - **渐进式披露（progressive disclosure）**：SKILL.md 只保留 6 阶段工作流骨架，详细规则按需从 references/ 加载，避免一次性消耗大量 token
@@ -27,9 +27,9 @@ SKILL.md（骨架）+ references/（按需加载）+ themes/（设计资产）
 │   ├── theme-management.md     # 主题搜索/安装/卸载/校验
 │   ├── theme-structure.md      # theme.json 格式与结构约定
 │   └── token-dictionary.md     # Token 语义字典（6 维度）
-├── theme-config.json           # 主题目录配置（themeDir 字段，绝对路径）
-└── themes/                     # 已安装 Theme 目录
-    └── apple-theme/            # C端/营销/移动主题
+├── theme-config.json           # 主题目录配置（themeDir 字段，绝对路径，指向本地已安装主题的唯一目录）
+└── themes/                     # skill 自带示例主题（仅供参考，不参与检索/安装/校验）
+    └── apple-theme/            # C端/营销/移动主题示例
 ```
 
 ## 使用方式

@@ -39,11 +39,8 @@ theme.json 包含介绍信息和运行时配置：
 - repository/license/preview：不需要在 theme.json 中声明，由统一主题仓库（ui-theme-hub）管理
 
 ## 已安装 Theme
-| 名称 | 场景 | 技术栈 |
-|------|------|--------|
-| boss-theme | B端管理（默认） | antd |
-| game-theme | 游戏UI（默认） | 原生 CSS 变量 + poem |
-| apple-theme | C端/营销/移动（默认） | Tailwind CSS |
+
+**不维护静态清单**——本地已安装主题以 `theme-config.json` 的 `themeDir` 目录为准，AI 用 `theme-management.md` 的探测命令即时读取（避免派生数据不一致）。skill 仓库 `themes/` 下的目录仅为示例，不代表用户实际已安装。
 
 ## 协作模型
 - 设计师：维护 Theme（PR 到统一主题仓库）
@@ -60,6 +57,7 @@ theme.json 包含介绍信息和运行时配置：
 - 主题安装方式改为 zip 下载（curl + unzip），避免 AI 手动复制遗漏文件。安装源：GitHub Pages packages/{theme-id}.zip
 - **SKILL.md 拆骨架 + references/ 渐进式披露**：从 14065 字节降到 5018 字节，调用时省 token；详细规则按需加载
 - **平台无关化**：skill 内容不写死平台专属变量/工具名，任何 agent 能读文件即可用，避免多平台适配工程
+- **本地主题检索不建索引文件**：本地（`{themeDir}`）不维护 `installed-summary.json` 之类的派生索引——派生数据有一致性维护成本（安装/卸载需同步，用户手动删目录会脏数据），且本地主题数量少索引收益不显著。改为在 `references/theme-management.md` 固化两条零维护探测命令：① for 循环读各 `theme.json` 的 name/scene/tags；② `find` 提取目录名拼 `?installed=`。直接读源文件，即时正确。zsh 兼容：for 循环加 `setopt nullglob`，列目录用 `find -mindepth 1 -maxdepth 1`（避免 zsh `nomatch` 空目录报错）
 
 ## Token 设计思路
 - **格式标准**：参考 W3C Design Tokens Community Group（https://design-tokens.github.io/community-group/format/）的分组思路（color/spacing/typography/border/shadow/motion），但做了简化——W3C 标准需要 `$value`、`$type` 嵌套，对 Claude 读取不友好，所以直接用扁平 JSON

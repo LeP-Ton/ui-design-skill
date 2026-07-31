@@ -5,7 +5,7 @@
 
 ## 目录结构
 
-每个 theme 是 `themes/`（或 `{themeDir}`）下的一个子目录，必须包含 `theme.json`：
+每个 theme 是 `{themeDir}`（`theme-config.json` 配置的本地主题目录）下的一个子目录，必须包含 `theme.json`：
 
 ```
 {theme-name}/

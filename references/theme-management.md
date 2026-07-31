@@ -19,6 +19,20 @@
 
 从 [themes-summary.json](https://raw.githubusercontent.com/LeP-Ton/ui-theme-hub/main/docs/themes-summary.json) 按条件筛选主题，展示 `name` / `description` / `scene` / `tags`。
 
+**本地主题检索**：当需要列出本地已安装主题（id/scene/tags）时，直接读源文件，无需维护索引文件（避免派生数据不一致）。一条命令提取所有本地主题的关键字段：
+
+```bash
+# 列出 {themeDir} 下所有本地已安装主题的 id/scene/tags
+# setopt nullglob：兼容 zsh，目录为空时 glob 不报错（bash 默认即此行为）
+setopt nullglob 2>/dev/null
+for f in {themeDir}/*/theme.json; do
+  echo "=== $(dirname "$f" | xargs basename) ==="
+  grep -E '"(name|scene|tags)"' "$f" | head -3
+done
+```
+
+> 该命令直接读源头 `theme.json`，零维护成本；用户手动增删主题后结果即时正确，不存在索引脏数据问题。
+
 ### 安装主题
 
 当用户提到"安装主题"、"下载主题"、"使用主题"等要求时触发：
@@ -49,7 +63,15 @@ mkdir -p {themeDir} \
 
 当用户提到"访问主题仓库"、"查看主题仓库"、"打开主题仓库"等要求时触发：
 
-从 `{themeDir}` 目录获取本地已安装主题 ID，主题市场链接支持的 URL 参数如下：
+从 `{themeDir}` 目录获取本地已安装主题 ID。提取所有本地主题 id（取目录名，无需逐个读 theme.json）：
+
+```bash
+# 输出 {themeDir} 下所有已安装主题的 id（目录名），逗号分隔，用于拼装市场 URL 的 installed 参数
+# 用 find -mindepth 1 -maxdepth 1 兼容空目录，避免 zsh 的 nomatch 报错
+find {themeDir} -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | paste -sd ',' -
+```
+
+主题市场链接支持的 URL 参数如下：
 
 | 参数 | 用途 | 示例 |
 |------|------|------|
