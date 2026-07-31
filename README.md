@@ -1,71 +1,91 @@
 # UI Design Skill
 
-通用前端 UI&UX 设计规范 skill，采用 Core + Theme 插件化架构。
+通用前端 UI&UX 设计规范 skill，采用 Theme 插件化架构。平台无关——任何能读取文件的 AI agent 都能使用。
+
+## 定位
+
+让 AI 产出**符合设计标准**的 UI。用户有 UI 需求时，手动让 AI 读取 `SKILL.md` 即可触发完整的 6 阶段工作流。
+
+- **不依赖特定平台的触发机制**（hook / plugin / instructions file），因此无需为每个 agent 单独适配
+- **任何 agent 能读文件即可使用**：把本仓库放在 agent 可访问的目录，需要时让 AI 读取 `SKILL.md`
 
 ## 架构
 
 ```
-Core（引擎）+ Theme（可插拔设计资产包）
+SKILL.md（骨架）+ references/（按需加载）+ themes/（设计资产）
 ```
 
-- **Core 永远很小**：SKILL.md 内含完整引擎逻辑 + core/ 只保留适配器和通用标准
+- **渐进式披露（progressive disclosure）**：SKILL.md 只保留 6 阶段工作流骨架，详细规则按需从 references/ 加载，避免一次性消耗大量 token
 - **Theme 可以独立演进**：每个 theme 自带 theme.json + patterns/standards/assets/examples
-- **设计师负责 Theme**，**前端负责 Core**，**AI 负责组装**
+- **设计师负责 Theme**，**AI 负责组装**
 
 ## 目录结构
 
 ```
-├── SKILL.md                    # Skill 主入口（含完整引擎逻辑）
-├── core/
-│   ├── adapters/               # 技术适配器
-│   │   ├── antd.md
-│   │   ├── tailwind.md
-│   │   └── css-variables.md
-│   └── standards/              # 通用标准（跨主题复用）
-│       ├── accessibility.md
-│       ├── responsive.md
-│       └── interaction.md
-└── themes/                     # Theme 目录（动态下载）
-    ├── boss-theme/             # B端管理主题
-    ├── game-theme/             # 游戏UI主题
+├── SKILL.md                    # Skill 骨架（6 阶段工作流 + 交叉引用）
+├── references/                 # 按需加载的详细规则
+│   ├── theme-management.md     # 主题搜索/安装/卸载/校验
+│   ├── theme-structure.md      # theme.json 格式与结构约定
+│   └── token-dictionary.md     # Token 语义字典（6 维度）
+├── theme-config.json           # 主题目录配置（themeDir 字段，绝对路径）
+└── themes/                     # 已安装 Theme 目录
     └── apple-theme/            # C端/营销/移动主题
 ```
+
+## 使用方式
+
+### 在任意 agent 中
+
+把本仓库放在 agent 可访问的目录，然后对 AI 说：
+
+```
+读取 /path/to/ui-design-skill/SKILL.md，按它的规范帮我生成一个用户管理列表页
+```
+
+AI 会读取 SKILL.md，按 6 阶段工作流产出符合主题规范的 UI 代码。
+
+### 在 Claude Code 中（可选）
+
+如果用 Claude Code 并希望以 skill 形式注册，可软链到 `~/.claude/skills/`：
+
+```bash
+ln -s /path/to/ui-design-skill ~/.claude/skills/ui-design
+```
+
+之后可用 `/ui-design` 或在对话中让 AI 调用。
+
+## 6 阶段工作流
+
+1. **场景识别**：语义匹配 themes-summary.json 选择主题
+2. **主题加载**：读取/安装主题到 themeDir
+3. **技术体系选择**：根据 requires 推断技术栈
+4. **模板匹配**：从 patterns/ 选择页面/区块模板
+5. **物料匹配**：从 assets/ 引用素材
+6. **代码生成**：结合 token + pattern + standard 生成代码（禁止硬编码颜色/间距）
 
 ## Theme 结构
 
 ```
 {theme-name}/
-├── theme.json          # manifest + tokens + registry（单文件）
+├── theme.json          # 介绍信息 + tokens（单文件）
 ├── patterns/           # 页面/区块模板
 ├── standards/          # 场景专属规范
 ├── assets/             # 物料素材
-└── examples/           # 示例代码
+└── examples/           # 市场预览截图
 ```
 
-theme.json 必需字段：`name`、`version`、`scene`、`tokens`、`registry`
+theme.json 必需字段：`name`、`version`、`scene`、`tokens`
 
-## 已安装 Theme
+## 配置主题目录
 
-| Theme | 场景 | 技术栈 |
-|-------|------|--------|
-| boss-theme | B端管理 | antd 5.x |
-| game-theme | 游戏UI | 自定义组件 |
-| apple-theme | C端/营销/移动 | React + CSS/Tailwind |
+编辑 `theme-config.json`，将 `themeDir` 设为存放主题的绝对路径：
 
-## 安装/卸载 Theme
-
-```bash
-# 安装
-git clone https://github.com/design-team/steam-theme.git themes/steam-theme
-
-# 卸载
-rm -rf themes/steam-theme
+```json
+{
+  "themeDir": "/Users/yourname/ui-themes"
+}
 ```
 
-## 使用
+## 统一主题仓库
 
-```
-/ui-design 生成一个用户管理列表页
-/ui-design 创建一个产品落地页
-/ui-design 用 game-theme 设计游戏HUD
-```
+所有主题集中管理在 [ui-theme-hub](https://github.com/LeP-Ton/ui-theme-hub)，AI 从该仓库发现和安装主题。新主题通过 PR 贡献。

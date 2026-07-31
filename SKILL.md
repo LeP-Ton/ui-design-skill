@@ -1,8 +1,12 @@
 ---
 name: ui-design
-description: 通用前端 UI&UX 设计规范 skill。当用户提到"生成页面"、"创建列表页"、"构建表单"、"设计界面"、"落地页"、"营销页"、"移动端界面"、"游戏UI"、"C端页面"、"产品首页"、"按主题生成"、"UI设计"、"页面设计"、"管理页面"、"数据看板"等场景时触发此 skill。基于 Theme 插件化架构，Theme 为可插拔的设计资产包，AI 负责组装。
+description: Use when creating any web page, UI component, form, landing page, dashboard, mobile interface, or game UI - before writing frontend code. Triggers on 生成页面/创建列表页/设计界面/落地页/营销页/移动端界面/游戏UI/C端页面/管理页面/数据看板/按主题生成. Ensures a theme-based design system (tokens + patterns + standards) is applied instead of hardcoded values.
 license: Complete terms in LICENSE.txt
 ---
+
+<!-- 本 SKILL.md 是骨架文件，遵循渐进式披露（progressive disclosure）原则。 -->
+<!-- 详细规则按需从 references/ 加载，避免一次性消耗大量 token。 -->
+<!-- 用户需要产出符合标准的 UI 时，手动让 AI 读取本 SKILL.md 即可触发完整工作流。 -->
 
 # UI Design Skill — Theme 插件化架构
 
@@ -10,48 +14,12 @@ license: Complete terms in LICENSE.txt
 
 - **Theme 可以独立演进**：每个 theme 自带完整的设计资产
 - **设计师负责 Theme**，**AI 负责组装**
-- **统一主题仓库**：所有主题集中在一个 Git 仓库（`ui-theme-hub`）中管理，AI 从该仓库发现和安装主题，统一主题仓库地址：`https://github.com/LeP-Ton/ui-theme-hub/`
-规范靠 SKILL.md 定义，质量靠 AI 安装时校验
-
-## 主题搜索与安装
-
-主题安装目标由 `theme-config.json`（与 SKILL.md 同目录）中的 `themeDir` 字段决定。`themeDir` 必须为绝对路径（如 `/Users/xxx/project/themes/`），不支持相对路径。首次使用时需先设置 `themeDir`，否则提示用户配置。
-
-`{themeDir}` 指 theme-config.json 中配置的主题存放绝对路径。
-
-- 当用户提到"搜索主题"、"查询主题"、"有哪些主题"等要求时触发：
-
-  **查询**：从 [themes-summary.json](https://raw.githubusercontent.com/LeP-Ton/ui-theme-hub/main/docs/themes-summary.json) 按条件筛选主题，展示 name/description/scene/tags
-
-- 当用户提到"安装主题"、"下载主题"、"使用主题"等要求时触发：
-  **安装**：从 GitHub Pages 下载主题 zip 包并解压到 `{themeDir}`，然后校验完整性。安装前先确保 `{themeDir}` 目录存在：
-    ```
-    mkdir -p {themeDir} \
-      && curl -fL https://lep-ton.github.io/ui-theme-hub/packages/{theme-id}.zip -o /tmp/{theme-id}.zip \
-      && unzip -t /tmp/{theme-id}.zip \
-      && unzip -o /tmp/{theme-id}.zip -d {themeDir} \
-      && rm /tmp/{theme-id}.zip
-    ```
-    说明：`-f` 让 curl 在 HTTP 错误时失败（不生成损坏文件），`unzip -t` 先验证 zip 完整性再解压，`mkdir -p` 确保目标目录存在
-
-- 当用户提到"卸载主题"、"删除主题"、"去除主题"等要求时触发：
-  **卸载**：删除 `{themeDir}/{theme-name}/` 目录
-
-- 当用户提到"访问主题仓库"，"查看主题仓库"，"打开主题仓库"等要求时触发：
-  **访问**：从`{themeDir}` 目录获取本地已安装主题 ID，主题市场链接支持的 URL 参数如下：
-
-    | 参数 | 用途 | 示例 |
-    |------|------|------|
-    | `scene` | 按场景筛选 | `?scene=enterprise` |
-    | `tags` | 按标签筛选（逗号分隔） | `?tags=blue,management` |
-    | `q` | 搜索关键词回填 | `?q=管理` |
-    | `installed` | 已安装主题 ID 排前并标记"已下载" | `?installed=boss-theme-blue,apple-theme` |
-
-    组合示例：`https://lep-ton.github.io/ui-theme-hub/?scene=enterprise&installed=boss-theme-blue`
-
-    按照示例打开浏览器访问主题市场
+- **统一主题仓库**：所有主题集中在一个 Git 仓库（`ui-theme-hub`，`https://github.com/LeP-Ton/ui-theme-hub/`）中管理，AI 从该仓库发现和安装主题
+- 规范靠 SKILL.md 定义，质量靠 AI 安装时校验
 
 ## 工作流（6 阶段）
+
+> **REQUIRED:** 完整执行 6 阶段，不得跳过。识别完场景后用「下一步」指引进入下一阶段。
 
 ### Phase 1: 场景识别
 
@@ -64,11 +32,13 @@ license: Complete terms in LICENSE.txt
 
 识别优先级：用户指定场景 > 用户指定 theme > 语义匹配
 
+**NEXT:** 场景识别完成后，进入 Phase 2 加载主题。
+
 ### Phase 2: 主题加载
 
 加载 Phase 1 选择的 theme：
 
-1. 先读取 `theme-config.json` 获取 `themeDir`（绝对路径，若未配置则提示用户设置）
+1. 先读取 `theme-config.json`（与 SKILL.md 同目录）获取 `themeDir`（绝对路径，若未配置则提示用户设置）
 2. 若用户指定 theme 名，直接加载 `{themeDir}` 目录已安装的 theme
 3. 若识别到的 theme 未安装，从 GitHub Pages 下载主题 zip 包解压到 `{themeDir}`
 
@@ -78,12 +48,9 @@ license: Complete terms in LICENSE.txt
 - `standards/`：设计标准规范
 - `assets/`：物料素材
 
-**安装校验**：安装 theme 后，校验完整性：
-- 必需目录存在：`patterns/`（若缺失提示重新安装）
-- 必需字段完整：`name`、`version`、`scene`、`tokens`
-- tokens 6 维度完整：`color`、`spacing`、`typography`、`border`、`shadow`、`motion`
-- color 基础字段完整：`primary`、`background.base`、`text.primary`、`border.default`
-- 若校验不通过，提示用户修复或重新安装
+> **主题搜索/安装/卸载/访问/校验的详细命令与规则**：见 `references/theme-management.md`
+
+**NEXT:** 主题加载完成后，进入 Phase 3 选择技术体系。
 
 ### Phase 3: 技术体系选择
 
@@ -95,12 +62,11 @@ license: Complete terms in LICENSE.txt
 | 含 `tailwind` | Tailwind CSS class + CSS 变量 | C端/营销 |
 | 无 UI 框架依赖 | 原生 CSS 变量（`var(--xxx)`） | 游戏 |
 
-`requires` 格式规则：对象数组，每项包含 `name`（依赖名称）和 `source`（开源地址）
-- `name`：依赖标识，AI 据此推断代码风格（如 `antd` → antd 组件写法，`tailwind` → Tailwind 写法）
-- `source`：仓库地址或文档地址，AI 不熟悉该依赖时从中获取 API 信息
-- `requires` 只放需要安装/引入的外部依赖，浏览器原生能力（如 CSS Variables）不列入
-
 优先级：用户指定 > 项目已有 > theme 声明
+
+> **requires 字段格式与技术栈推断详细规则**：见 `references/theme-structure.md`
+
+**NEXT:** 技术体系确定后，进入 Phase 4 匹配模板。
 
 ### Phase 4: 模板匹配
 
@@ -110,16 +76,31 @@ license: Complete terms in LICENSE.txt
 
 若 theme 中无匹配模板，基于 token 和 standards 生成自定义页面。
 
+**NEXT:** 模板选定后，进入 Phase 5 匹配物料。
+
 ### Phase 5: 物料匹配
 
-从 theme 的 `assets/` 目录引用物料（icons/illustrations/fragments）。
+从 theme 的 `assets/` 目录引用物料（icons / illustrations / fragments）。
+
+**NEXT:** 物料齐备后，进入 Phase 6 生成代码。
 
 ### Phase 6: 代码生成
 
 结合 token + pattern + standard 生成代码。
-- 根据 `requires` 中的依赖推断代码风格（如含 `antd` → antd 组件 + ConfigProvider，含 `tailwind` → Tailwind class，无 UI 框架 → 原生 CSS 变量 `var(--xxx)`，不熟悉的依赖 → 从 source 获取 API）
+
+- 根据 `requires` 中的依赖推断代码风格（含 `antd` → antd 组件 + ConfigProvider，含 `tailwind` → Tailwind class，无 UI 框架 → 原生 CSS 变量 `var(--xxx)`，不熟悉的依赖 → 从 source 获取 API）
 - 遵循 theme 的 standards/（如果有的话）
-- 禁止硬编码颜色/间距/圆角，必须使用 token
+- **禁止硬编码颜色/间距/圆角，必须使用 token**
+
+> **Token 语义字典（生成代码时必须按语义使用 token）**：见 `references/token-dictionary.md`
+
+## 子流程交叉引用
+
+| 需求 | 读取 |
+|------|------|
+| 主题搜索/安装/卸载/访问/校验 | `references/theme-management.md` |
+| theme.json 格式与 Theme 结构约定 | `references/theme-structure.md` |
+| Token 语义字典（6 维度详细表） | `references/token-dictionary.md` |
 
 ## 主题询问规则
 
@@ -131,164 +112,3 @@ license: Complete terms in LICENSE.txt
 | 场景无 theme | 提示安装默认 theme |
 
 **仅询问一次**，不得反复追问。
-
-## Theme 结构约定
-
-每个 theme 是 `themes/` 下的一个子目录，必须包含 `theme.json`：
-
-```
-{theme-name}/
-├── theme.json              # 必需：介绍页 + tokens（单文件）
-├── patterns/               # 可选：页面/区块模板
-│   ├── pages/
-│   └── blocks/
-├── standards/              # 可选：场景专属设计规范
-├── assets/                 # 可选：物料素材
-│   ├── icons/
-│   ├── illustrations/
-│   └── fragments/
-└── examples/               # 可选：市场预览截图（.png/.webp）
-```
-
-### theme.json 格式
-
-```json
-{
-  "name": "boss-theme",
-  "version": "1.0.0",
-  "description": "B端管理系统主题",
-  "author": "设计团队",
-  "scene": "b-end",
-  "tags": ["b-end", "management"],
-  "requires": [
-    { "name": "antd", "source": "https://github.com/ant-design/ant-design" }
-  ],
-  "tokens": {
-    "color": {
-      "primary": "#1677ff",
-      "secondary": "#597ef7",
-      "accent": "#13c2c2",
-      "success": "#52c41a",
-      "warning": "#faad14",
-      "error": "#ff4d4f",
-      "info": "#1677ff",
-      "background": { "base": "#ffffff", "elevated": "#ffffff", "muted": "#f5f5f5" },
-      "text": { "primary": "rgba(0,0,0,0.88)", "secondary": "rgba(0,0,0,0.65)", "muted": "rgba(0,0,0,0.45)", "inverse": "#ffffff" },
-      "border": { "default": "#d9d9d9", "muted": "#f0f0f0" }
-    },
-    "spacing": { "unit": 4, "scale": [0, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96] },
-    "typography": {
-      "fontFamily": { "base": "...", "heading": "...", "code": "..." },
-      "fontSize": { "xs": 12, "sm": 13, "base": 14, "lg": 16, "xl": 20, "2xl": 24, "3xl": 30, "4xl": 36 },
-      "fontWeight": { "normal": 400, "medium": 500, "semibold": 600, "bold": 700 },
-      "lineHeight": { "tight": 1.25, "base": 1.5, "relaxed": 1.75 }
-    },
-    "border": { "radius": { "none": 0, "sm": 4, "base": 6, "lg": 8, "xl": 12, "full": 9999 }, "width": { "thin": 1, "base": 1, "thick": 2 } },
-    "shadow": { "sm": "...", "base": "...", "lg": "...", "xl": "..." },
-    "motion": { "enabled": true, "duration": { "fast": "0.1s", "base": "0.2s", "slow": "0.3s" }, "easing": { "standard": "cubic-bezier(0.4,0,0.2,1)", "decelerate": "cubic-bezier(0,0,0.2,1)", "accelerate": "cubic-bezier(0.4,0,1,1)" } }
-  }
-}
-```
-
-`theme.json` 必需字段：`name`、`version`、`scene`、`tokens`。当某场景只有一个 theme 时，该 theme 自动为该场景的默认主题，无需显式声明。
-
-### Token 语义字典
-
-生成代码时，必须按以下语义使用 token 值，不可凭猜测：
-
-#### color（色彩）
-
-| Token | 语义 | 用在哪里 |
-|-------|------|----------|
-| `color.primary` | 品牌主色 | 主按钮、链接、选中态、进度条 |
-| `color.secondary` | 次要色 | 辅助按钮、次要图标 |
-| `color.accent` | 强调色 | 少量点缀高亮 |
-| `color.success` | 成功色 | 成功状态标签、成功提示 |
-| `color.warning` | 警告色 | 警告状态标签、警告提示 |
-| `color.error` | 错误色 | 错误状态标签、错误提示、删除按钮 |
-| `color.info` | 信息色 | 信息提示 |
-| `color.background.base` | 页面最底层背景 | body、layout 背景 |
-| `color.background.elevated` | 浮层背景 | 卡片、弹窗、下拉面板 |
-| `color.background.muted` | 次要背景 | 表头、分割区域、代码块背景 |
-| `color.text.primary` | 主要文字 | 标题、正文 |
-| `color.text.secondary` | 次要文字 | 描述、标签、辅助信息 |
-| `color.text.muted` | 最弱文字 | 占位符、禁用文字、注释 |
-| `color.text.inverse` | 反色文字 | 主色背景上的文字（按钮内文字） |
-| `color.border.default` | 默认边框 | 输入框、卡片边框 |
-| `color.border.muted` | 淡边框 | 分割线、表格内边框 |
-| `color.extended.*` | 场景专属扩展 | 由 theme 自定义，如 tableHeaderBg、sidebarBg 等 |
-
-#### spacing（间距）
-
-| Token | 语义 | 用在哪里 |
-|-------|------|----------|
-| `spacing.unit` | 基础单位（4px） | 所有间距值的计算基础 |
-| `spacing.scale` | 间距阶梯数组 | 索引对应：[0]=0, [1]=4, [2]=8, [3]=12, [4]=16, [5]=20, [6]=24, [7]=32, [8]=40, [9]=48, [10]=64, [11]=80, [12]=96 |
-| `spacing.extended.*` | 场景专属扩展 | 如 headerHeight、sidebarWidth 等 |
-
-**间距层级规则**：
-- 页面/场景间距 → scale[10-12]（64-96px）
-- 区域/区块间距 → scale[7-8]（32-40px）
-- 卡片/组件间距 → scale[4]（16px）
-- 元素组间距 → scale[2]（8px）
-- 同组元素间距 → scale[1]（4px）
-
-#### typography（字体）
-
-| Token | 语义 | 用在哪里 |
-|-------|------|----------|
-| `typography.fontFamily.base` | 正文字体 | body、段落、输入框 |
-| `typography.fontFamily.heading` | 标题字体 | h1-h6、页面标题 |
-| `typography.fontFamily.code` | 代码字体 | 代码块、行内代码 |
-| `typography.fontSize.xs` | 12px | 辅助文字、标签 |
-| `typography.fontSize.sm` | 13px | 小文字、表格辅助信息 |
-| `typography.fontSize.base` | 14px | 正文（默认） |
-| `typography.fontSize.lg` | 16px | 大正文、小标题 |
-| `typography.fontSize.xl` | 20px | 区块标题 |
-| `typography.fontSize.2xl` | 24px | 页面标题 |
-| `typography.fontSize.3xl` | 30px | 大标题 |
-| `typography.fontSize.4xl` | 36px | Hero 标题 |
-| `typography.fontWeight.normal` | 400 | 正文 |
-| `typography.fontWeight.medium` | 500 | 强调文字 |
-| `typography.fontWeight.semibold` | 600 | 小标题 |
-| `typography.fontWeight.bold` | 700 | 大标题 |
-| `typography.lineHeight.tight` | 1.25 | 标题行高 |
-| `typography.lineHeight.base` | 1.5 | 正文行高 |
-| `typography.lineHeight.relaxed` | 1.75 | 长文行高 |
-
-#### border（边框/圆角）
-
-| Token | 语义 | 用在哪里 |
-|-------|------|----------|
-| `border.radius.none` | 0 | 无圆角 |
-| `border.radius.sm` | 4px | 小圆角：标签、小按钮 |
-| `border.radius.base` | 6px | 基础圆角：输入框、按钮、卡片 |
-| `border.radius.lg` | 8px | 大圆角：弹窗、大卡片 |
-| `border.radius.xl` | 12px | 超大圆角：C端卡片 |
-| `border.radius.full` | 9999px | 完全圆角：头像、圆形按钮 |
-| `border.width.thin` | 1px | 细边框：分割线 |
-| `border.width.base` | 1px | 默认边框：输入框、卡片 |
-| `border.width.thick` | 2px | 粗边框：焦点态 |
-
-#### shadow（阴影）
-
-| Token | 语义 | 用在哪里 |
-|-------|------|----------|
-| `shadow.sm` | 微阴影 | 卡片默认态 |
-| `shadow.base` | 基础阴影 | 按钮、下拉 |
-| `shadow.lg` | 大阴影 | 悬浮态卡片、弹窗 |
-| `shadow.xl` | 超大阴影 | 全屏弹窗 |
-
-#### motion（动效）
-
-| Token | 语义 | 用在哪里 |
-|-------|------|----------|
-| `motion.enabled` | 是否启用动效 | false 时跳过所有动画 |
-| `motion.duration.fast` | 0.1s | hover、焦点变化 |
-| `motion.duration.base` | 0.2s | 展开/收起、显隐切换 |
-| `motion.duration.slow` | 0.3s | 页面切换、弹窗出现 |
-| `motion.easing.standard` | 标准缓动 | 大部分场景 |
-| `motion.easing.decelerate` | 减速缓动 | 进入动画 |
-| `motion.easing.accelerate` | 加速缓动 | 退出动画 |
-
-每个 token 维度都可添加 `extended` 字段存放场景专属扩展值，`extended` 中的字段由 theme 自定义，需在 theme 的 `standards/` 中说明其用途。

@@ -1,13 +1,34 @@
 # UI Design Skill - 项目认知
 
 ## 项目定位
-通用前端 UI&UX 设计规范 Claude Code Skill，Theme 插件化架构。所有主题集中在一个统一主题仓库中管理，AI 从该仓库发现和安装主题。
+通用前端 UI&UX 设计规范 skill，Theme 插件化架构。**开源项目，平台无关**——任何能读取文件的 AI agent 都可使用，不依赖特定平台的触发机制（hook/plugin/instructions file）。用户有 UI 需求时手动让 AI 读取 SKILL.md 触发完整工作流。
+
+## 设计哲学
+- **手动调用而非自动触发**：用户明确要做 UI 时主动让 AI 读取 SKILL.md，是有意识的设计决策。不需要 superpowers 式的 SessionStart hook 注入 bootstrap
+- **平台无关**：skill 内容不写死任何平台专属变量（如 `${CLAUDE_PLUGIN_ROOT}`）或工具名（如 `Skill` 工具），因此无需为每个 agent 单独适配。各 agent 的差异主要在"自动触发机制"，去掉触发机制后只剩"一份能被读取的 skill 内容"，跨平台兼容问题自然消失
+- **渐进式披露**：SKILL.md 只保留骨架，详细规则按需从 references/ 加载
 
 ## 架构
-- **SKILL.md**：完整引擎逻辑（场景识别+主题加载+主题搜索安装+技术选择+模板匹配+物料匹配+代码生成），Claude 触发时直接读取
-- **统一主题仓库（ui-theme-hub）**：集中管理所有主题的 Git 仓库（`https://github.com/LeP-Ton/ui-theme-hub/`），AI 从中发现和安装主题
-- **theme-config.json**：主题目录配置文件，`themeDir` 字段指定主题存放目录（默认 `./themes/`），支持绝对路径和相对路径
+- **SKILL.md**：6 阶段工作流骨架（场景识别 + 主题加载 + 技术选择 + 模板匹配 + 物料匹配 + 代码生成），含交叉引用指向 references/
+- **references/**：按需加载的详细规则
+  - `theme-management.md`：主题搜索/安装/卸载/校验
+  - `theme-structure.md`：theme.json 格式与结构约定
+  - `token-dictionary.md`：Token 语义字典（6 维度）
+- **统一主题仓库（ui-theme-hub）**：集中管理所有主题的 Git 仓库（`https://github.com/LeP-Ton/ui-theme-hub/`），AI 从该仓库发现和安装主题
+- **theme-config.json**：主题目录配置文件（与 SKILL.md 同目录），`themeDir` 字段指定主题存放目录（绝对路径）
 - **themes/**：本地已安装 theme 目录（默认），每个 theme 从统一仓库安装，自带 theme.json + patterns/standards/assets/examples
+
+## 关于 superpowers 机制（已评估，不采用）
+曾借鉴 obra/superpowers 的自动触发机制（SessionStart hook 注入 bootstrap + description SDO + plugin 结构），但评估后回退：
+- **不采用 hook 自动触发**：本项目是开源、平台无关的，用户主动调用即可；hook 是平台专属机制（Claude Code/Cursor 的 shell hook、Gemini 的 instructions file、OpenCode/pi 的 in-process 插件），采用它会引入"大量 agent 兼容问题"
+- **保留的收益**：SKILL.md 骨架化（14065→5018 字节，省 token）、description 按 SDO 规则优化（只写 when 不写 what）
+- **何时重新考虑 hook**：若未来发现用户频繁"想不起来用 skill"成为真实痛点，或要为特定平台做硬自动触发发行版，再按平台单独接入
+
+## description 编写规则（SDO，保留）
+- 只写"何时用"（when），绝不写"做什么"（what）——否则模型会自以为懂了而跳过读正文
+- 以 `Use when...` 开头，第三人称
+- 含"任务阶段词"和"时机锚点"（如 `before writing frontend code`）
+- frontmatter 总计 ≤1024 字符
 
 ## Theme 结构
 theme.json 包含介绍信息和运行时配置：
@@ -29,7 +50,7 @@ theme.json 包含介绍信息和运行时配置：
 - AI：从统一主题仓库发现+安装 Theme + 校验 + 加载 + 组装代码
 
 ## 关键设计决策
-- 引擎逻辑全在 SKILL.md 中，不分散到子文件（Claude 只自动读取 SKILL.md）
+- 引擎逻辑全在 SKILL.md 骨架中，详细规则分散到 references/（Claude 只自动读取 SKILL.md 骨架，按需加载 references）
 - tokens 合并为单个 theme.json，一次读取全部 token（原来 8 个文件→1 个文件）
 - 删除了 registry 字段：技术栈由 requires 依赖推断，自定义组件信息由 patterns/ 提供，registry 整体冗余
 - 删除了 core/ 目录：adapters 对 AI 无增量价值，standards 的内容 AI 本身就知道，core 层已无存在必要
@@ -37,12 +58,17 @@ theme.json 包含介绍信息和运行时配置：
 - 删除了硬编码场景表：场景识别改为动态语义匹配（读取 themes-summary.json 的 scene/tags/description），新主题发布无需更新 SKILL.md
 - themes-index.json 拆为两层：themes-summary.json（轻量索引，供列表页和 AI 场景识别）+ themes/{id}.json（单主题全量，供详情页按需加载）。原全量索引已废弃
 - 主题安装方式改为 zip 下载（curl + unzip），避免 AI 手动复制遗漏文件。安装源：GitHub Pages packages/{theme-id}.zip
+- **SKILL.md 拆骨架 + references/ 渐进式披露**：从 14065 字节降到 5018 字节，调用时省 token；详细规则按需加载
+- **平台无关化**：skill 内容不写死平台专属变量/工具名，任何 agent 能读文件即可用，避免多平台适配工程
 
 ## Token 设计思路
 - **格式标准**：参考 W3C Design Tokens Community Group（https://design-tokens.github.io/community-group/format/）的分组思路（color/spacing/typography/border/shadow/motion），但做了简化——W3C 标准需要 `$value`、`$type` 嵌套，对 Claude 读取不友好，所以直接用扁平 JSON
-- **语义字典**：仅靠字段名（如 `color.background.elevated`）AI 无法推断用途，所以在 SKILL.md 中为每个 token 字段提供了语义 + 使用场景的说明（"elevated → 浮层背景 → 卡片、弹窗、下拉面板"），AI 读后可直接正确使用
+- **语义字典**：仅靠字段名（如 `color.background.elevated`）AI 无法推断用途，所以在 references/token-dictionary.md 中为每个 token 字段提供了语义 + 使用场景的说明（"elevated → 浮层背景 → 卡片、弹窗、下拉面板"），AI 读后可直接正确使用
 - **extended 扩展**：每个 token 维度可添加 `extended` 字段存放场景专属值（如 boss-theme 的 `tableHeaderBg`、game-theme 的 `rarityRare`），这些自定义字段需在 theme 的 `standards/` 中说明用途
 
-## Skill 注册
-- 路径：~/.claude/skills/ui-design → /Users/didi/Documents/program/ui-design-skill
-- 触发：/ui-design 或关键词
+## 检索方法
+- 在对项目检索时，无需把 `.agentdocs/workflow` 中的变更文档直接纳入检索，可以先检索 `.agentdocs/index.md` 根索引文档，再按需检索详细变更文档
+
+## 使用方式
+- **任意 agent**：把仓库放在 agent 可访问目录，需要时让 AI 读取 `SKILL.md`
+- **Claude Code（可选）**：软链到 `~/.claude/skills/ui-design`，可用 `/ui-design` 或对话中调用
