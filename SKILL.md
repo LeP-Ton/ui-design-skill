@@ -20,6 +20,7 @@ license: Complete terms in LICENSE.txt
 ## 工作流（6 阶段）
 
 > **REQUIRED:** 完整执行 6 阶段，不得跳过。识别完场景后用「下一步」指引进入下一阶段。
+> **主题搜索/安装/卸载/访问/校验的详细命令与规则**：见 `references/theme-management.md`
 
 ### Phase 1: 场景识别
 
@@ -48,25 +49,13 @@ license: Complete terms in LICENSE.txt
 - `standards/`：设计标准规范
 - `assets/`：物料素材
 
-> **主题搜索/安装/卸载/访问/校验的详细命令与规则**：见 `references/theme-management.md`
-
 **NEXT:** 主题加载完成后，进入 Phase 3 选择技术体系。
 
-### Phase 3: 技术体系选择
+### Phase 3: 标准解析
 
-根据 theme.json 中 `requires` 的依赖推断技术栈和代码风格：
+从 theme 的 `standards/` 目录解析标准规范作为设计总纲。
 
-| requires 中的依赖 | 推断代码风格 | 典型场景 |
-|-------------------|------------|----------|
-| 含 `antd` | antd 组件 + ConfigProvider 注入 | B端管理 |
-| 含 `tailwind` | Tailwind CSS class + CSS 变量 | C端/营销 |
-| 无 UI 框架依赖 | 原生 CSS 变量（`var(--xxx)`） | 游戏 |
-
-优先级：用户指定 > 项目已有 > theme 声明
-
-> **requires 字段格式与技术栈推断详细规则**：见 `references/theme-structure.md`
-
-**NEXT:** 技术体系确定后，进入 Phase 4 匹配模板。
+**NEXT:** 设计标准规范确定后，进入 Phase 4 匹配模板。
 
 ### Phase 4: 模板匹配
 
@@ -82,16 +71,20 @@ license: Complete terms in LICENSE.txt
 
 从 theme 的 `assets/` 目录引用物料（icons / illustrations / fragments）。
 
+- 参考 `standards/` 中的物料介绍和使用方法
+- 当大模型不支持识图能力时：可根据 `standards/` 中的物料介绍掌握物料信息和使用方法，若物料信息不足，需向用户报告风险。
+
 **NEXT:** 物料齐备后，进入 Phase 6 生成代码。
 
 ### Phase 6: 代码生成
 
-结合 token + pattern + standard 生成代码。
+结合 tokens + patterns + assets + standards 生成代码。
 
 - 根据 `requires` 中的依赖推断代码风格（含 `antd` → antd 组件 + ConfigProvider，含 `tailwind` → Tailwind class，无 UI 框架 → 原生 CSS 变量 `var(--xxx)`，不熟悉的依赖 → 从 source 获取 API）
 - 遵循 theme 的 standards/（如果有的话）
 - **禁止硬编码颜色/间距/圆角，必须使用 token**
 
+> **requires 字段格式与技术栈推断详细规则**：见 `references/theme-structure.md`
 > **Token 语义字典（生成代码时必须按语义使用 token）**：见 `references/token-dictionary.md`
 
 ## 子流程交叉引用
