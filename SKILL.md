@@ -1,7 +1,6 @@
 ---
 name: ui-design
-description: Use when creating any web page, UI component, form, landing page, dashboard, mobile interface, or game UI - before writing frontend code. Triggers on 生成页面/创建列表页/设计界面/落地页/营销页/移动端界面/游戏UI/C端页面/管理页面/数据看板/按主题生成. Ensures a theme-based design system (tokens + patterns + standards) is applied instead of hardcoded values.
-license: Complete terms in LICENSE.txt
+description: Theme-based UI implementation workflow. Use only when the user explicitly asks to use the ui-design skill or explicitly asks the agent to read this SKILL.md. Do not trigger from an ordinary UI or frontend request.
 ---
 
 <!-- 本 SKILL.md 是骨架文件，遵循渐进式披露（progressive disclosure）原则。 -->
@@ -19,7 +18,7 @@ license: Complete terms in LICENSE.txt
 
 ## 工作流（6 阶段）
 
-> **REQUIRED:** 必须依次完成 6 个阶段的判定，不得跳过。某阶段没有可用资源时，明确记录“无匹配资源”并继续，不得虚构 Theme 内容。
+> **REQUIRED:** 生产UI时必须依次完成 6 个阶段的判定，不得跳过。某阶段没有可用资源时，明确记录“无匹配资源”并继续，不得虚构 Theme 内容。
 > **主题搜索/安装/卸载/访问/校验的详细命令与规则**：见 `references/theme-management.md`
 
 ### Phase 1: 场景识别
@@ -51,9 +50,9 @@ license: Complete terms in LICENSE.txt
 - `standards/`：设计标准规范
 - `assets/`：物料素材
 
-**NEXT:** 主题加载完成后，进入 Phase 3 确定设计标准。
+**NEXT:** 主题加载完成后，进入 Phase 3 解析主题。
 
-### Phase 3: 实现上下文与标准解析
+### Phase 3: 主题解析
 
 在匹配模板前确定实现边界：
 
@@ -64,7 +63,7 @@ license: Complete terms in LICENSE.txt
 
 > **requires 字段格式与技术体系推断规则**：见 `references/theme-structure.md`
 
-**NEXT:** 实现边界与设计标准确定后，进入 Phase 4 匹配模板。
+**NEXT:** 主题解析完成后，进入 Phase 4 匹配模板。
 
 ### Phase 4: 模板匹配
 

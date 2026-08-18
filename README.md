@@ -27,6 +27,8 @@ SKILL.md（骨架）+ references/（按需加载）+ {themeDir}（设计资产�
 │   ├── theme-management.md     # 主题搜索/安装/卸载/校验
 │   ├── theme-structure.md      # theme.json 格式与结构约定
 │   └── token-dictionary.md     # Token 语义字典（6 维度）
+├── explorations/
+│   └── skill-workflows/        # SKILL_V{version}.md → SKILL.md 的探索版本映射（不作为运行入口）
 ├── theme-config.json           # 主题目录配置（themeDir 字段，绝对路径，指向本地已安装主题的唯一目录）
 └── themes/                     # skill 自带示例主题（仅供参考，不参与检索/安装/校验）
     └── apple-theme/            # C端/营销/移动主题示例
@@ -44,6 +46,8 @@ SKILL.md（骨架）+ references/（按需加载）+ {themeDir}（设计资产�
 
 AI 会读取 SKILL.md，按 6 阶段工作流产出符合主题规范的 UI 代码。
 
+> 根目录 `SKILL.md` 是唯一正式入口。历史基线与候选工作流统一收录在 `explorations/skill-workflows/`，不可直接注册为 Skill。
+
 ### 在 Claude Code 中（可选）
 
 如果用 Claude Code 并希望以 skill 形式注册，可软链到 `~/.claude/skills/`：
@@ -58,7 +62,7 @@ ln -s /path/to/ui-design-skill ~/.claude/skills/ui-design
 
 1. **场景识别**：语义匹配 themes-summary.json 选择主题
 2. **主题加载**：读取/安装主题到 themeDir
-3. **技术体系选择**：根据 requires 推断技术栈
+3. **主题解析**：解析目标项目上下文、Theme requires 与设计标准
 4. **模板匹配**：从 patterns/ 选择页面/区块模板
 5. **物料匹配**：从 assets/ 引用素材
 6. **代码生成**：结合 token + pattern + standard 生成代码（禁止硬编码颜色/间距）

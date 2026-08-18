@@ -9,11 +9,12 @@
 - **渐进式披露**：SKILL.md 只保留骨架，详细规则按需从 references/ 加载
 
 ## 架构
-- **SKILL.md**：6 阶段工作流骨架（场景识别 + 主题加载 + 技术选择 + 模板匹配 + 物料匹配 + 代码生成），含交叉引用指向 references/
+- **SKILL.md**：包含 Codex 识别所需的最小 frontmatter（`name` + `description`），description 明确限制为用户主动点名 skill 或要求读取文件时才触发；正文承载 6 阶段工作流骨架（场景识别 + 主题加载 + 主题解析 + 模板匹配 + 物料匹配 + 代码生成）
 - **references/**：按需加载的详细规则
   - `theme-management.md`：主题搜索/安装/卸载/校验
   - `theme-structure.md`：theme.json 格式与结构约定
   - `token-dictionary.md`：Token 语义字典（6 维度）
+- **explorations/skill-workflows/**：根目录 `SKILL.md` 的版本档案，使用 `SKILL_V{major}.{minor}.md → SKILL.md` 映射；`README.md` 维护版本来源和 `derivedFrom`。目录内文件不可直接注册，根目录 `SKILL.md` 是唯一正式入口
 - **统一主题仓库（ui-theme-hub）**：集中管理所有主题的 Git 仓库（`https://github.com/LeP-Ton/ui-theme-hub/`），AI 从该仓库发现和安装主题
 - **theme-config.json**：主题目录配置文件（与 SKILL.md 同目录），`themeDir` 字段指定主题存放目录（绝对路径）
 - **themes/**：本地已安装 theme 目录（默认），每个 theme 从统一仓库安装，自带 theme.json + patterns/standards/assets/examples
@@ -21,14 +22,8 @@
 ## 关于 superpowers 机制（已评估，不采用）
 曾借鉴 obra/superpowers 的自动触发机制（SessionStart hook 注入 bootstrap + description SDO + plugin 结构），但评估后回退：
 - **不采用 hook 自动触发**：本项目是开源、平台无关的，用户主动调用即可；hook 是平台专属机制（Claude Code/Cursor 的 shell hook、Gemini 的 instructions file、OpenCode/pi 的 in-process 插件），采用它会引入"大量 agent 兼容问题"
-- **保留的收益**：SKILL.md 骨架化（14065→5018 字节，省 token）、description 按 SDO 规则优化（只写 when 不写 what）
+- **保留的收益**：SKILL.md 骨架化，详细规则按需加载，降低调用时的上下文消耗
 - **何时重新考虑 hook**：若未来发现用户频繁"想不起来用 skill"成为真实痛点，或要为特定平台做硬自动触发发行版，再按平台单独接入
-
-## description 编写规则（SDO，保留）
-- 只写"何时用"（when），绝不写"做什么"（what）——否则模型会自以为懂了而跳过读正文
-- 以 `Use when...` 开头，第三人称
-- 含"任务阶段词"和"时机锚点"（如 `before writing frontend code`）
-- frontmatter 总计 ≤1024 字符
 
 ## Theme 结构
 theme.json 包含介绍信息和运行时配置：
@@ -57,6 +52,7 @@ theme.json 包含介绍信息和运行时配置：
 - 主题安装方式改为 zip 下载（curl + unzip），避免 AI 手动复制遗漏文件。安装源：GitHub Pages packages/{theme-id}.zip
 - **SKILL.md 拆骨架 + references/ 渐进式披露**：从 14065 字节降到 5018 字节，调用时省 token；详细规则按需加载
 - **平台无关化**：skill 内容不写死平台专属变量/工具名，任何 agent 能读文件即可用，避免多平台适配工程
+- **最小识别 frontmatter**：根 `SKILL.md` 只声明 Codex 必需的 `name` 与 `description`，不放 `license`；description 明确排除普通 UI/前端请求，兼顾可识别与仅主动调用
 - **本地主题检索不建索引文件**：本地（`{themeDir}`）不维护 `installed-summary.json` 之类的派生索引——派生数据有一致性维护成本（安装/卸载需同步，用户手动删目录会脏数据），且本地主题数量少索引收益不显著。改为在 `references/theme-management.md` 固化两条零维护探测命令：① for 循环读各 `theme.json` 的 name/scene/tags；② `find` 提取目录名拼 `?installed=`。直接读源文件，即时正确。zsh 兼容：for 循环加 `setopt nullglob`，列目录用 `find -mindepth 1 -maxdepth 1`（避免 zsh `nomatch` 空目录报错）
 
 ## Token 设计思路
@@ -66,6 +62,7 @@ theme.json 包含介绍信息和运行时配置：
 
 ## 检索方法
 - 在对项目检索时，无需把 `.agentdocs/workflow` 中的变更文档直接纳入检索，可以先检索 `.agentdocs/index.md` 根索引文档，再按需检索详细变更文档
+- 比较 SKILL 工作流方案时，先读 `explorations/skill-workflows/README.md`，再按映射读取具体候选；不要把 `.history/` 自动快照作为正式方案来源
 
 ## 使用方式
 - **任意 agent**：把仓库放在 agent 可访问目录，需要时让 AI 读取 `SKILL.md`

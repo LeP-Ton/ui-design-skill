@@ -19,10 +19,10 @@
 
 从 [themes-summary.json](https://raw.githubusercontent.com/LeP-Ton/ui-theme-hub/main/docs/themes-summary.json) 按条件筛选主题，展示 `name` / `description` / `scene` / `tags`。
 
-**本地主题检索**：当需要列出本地已安装主题（id/scene/tags）时，直接读源文件，无需维护索引文件（避免派生数据不一致）。一条命令提取所有本地主题的关键字段：
+**本地主题检索**：当需要列出本地已安装主题（dir/name/scene/tags）时，直接读源文件，无需维护索引文件（避免派生数据不一致）。一条命令提取所有本地主题的关键字段：
 
 ```bash
-# 列出 {themeDir} 下所有本地已安装主题的 id/scene/tags
+# 列出 {themeDir} 下所有本地已安装主题的 dir/name/scene/tags
 # setopt nullglob：兼容 zsh，目录为空时 glob 不报错（bash 默认即此行为）
 setopt nullglob 2>/dev/null
 for f in {themeDir}/*/theme.json; do
@@ -41,32 +41,32 @@ done
 
 ```bash
 mkdir -p {themeDir} \
-  && curl -fL https://lep-ton.github.io/ui-theme-hub/packages/{theme-id}.zip -o /tmp/{theme-id}.zip \
-  && unzip -t /tmp/{theme-id}.zip \
-  && unzip -o /tmp/{theme-id}.zip -d {themeDir} \
-  && rm /tmp/{theme-id}.zip
+  && curl -fL https://lep-ton.github.io/ui-theme-hub/packages/{dir}.zip -o /tmp/{dir}.zip \
+  && unzip -t /tmp/{dir}.zip \
+  && unzip -o /tmp/{dir}.zip -d {themeDir} \
+  && rm /tmp/{dir}.zip
 ```
 
 **参数说明**：
 - `-f`：让 curl 在 HTTP 错误时失败（不生成损坏文件）
 - `unzip -t`：先验证 zip 完整性再解压
 - `mkdir -p`：确保目标目录存在
-- `{theme-id}`：主题唯一标识，从 themes-summary.json 获取
+- `{dir}`：主题唯一标识，从 themes-summary.json 的 `dir` 字段获取
 
 ### 卸载主题
 
 当用户提到"卸载主题"、"删除主题"、"去除主题"等要求时触发：
 
-删除 `{themeDir}/{theme-name}/` 目录。
+删除 `{themeDir}/{dir}/` 目录。`dir` 是主题唯一标识；删除属于不可逆操作，执行前必须向用户确认准确路径。
 
 ### 访问主题仓库
 
 当用户提到"访问主题仓库"、"查看主题仓库"、"打开主题仓库"等要求时触发：
 
-从 `{themeDir}` 目录获取本地已安装主题 ID。提取所有本地主题 id（取目录名，无需逐个读 theme.json）：
+从 `{themeDir}` 目录获取本地已安装主题 `dir`。提取所有本地主题 dir（取目录名，无需逐个读 theme.json）：
 
 ```bash
-# 输出 {themeDir} 下所有已安装主题的 id（目录名），逗号分隔，用于拼装市场 URL 的 installed 参数
+# 输出 {themeDir} 下所有已安装主题的 dir（目录名），逗号分隔，用于拼装市场 URL 的 installed 参数
 # 用 find -mindepth 1 -maxdepth 1 兼容空目录，避免 zsh 的 nomatch 报错
 find {themeDir} -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | paste -sd ',' -
 ```
@@ -75,12 +75,12 @@ find {themeDir} -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | paste -sd
 
 | 参数 | 用途 | 示例 |
 |------|------|------|
-| `scene` | 按场景筛选 | `?scene=enterprise` |
+| `scene` | 按场景筛选 | `?scene=b2b` |
 | `tags` | 按标签筛选（逗号分隔） | `?tags=blue,management` |
 | `q` | 搜索关键词回填 | `?q=管理` |
-| `installed` | 已安装主题 ID 排前并标记"已下载" | `?installed=boss-theme-blue,apple-theme` |
+| `installed` | 已安装主题 dir 排前并标记"已下载" | `?installed=boss-theme-blue,apple-theme` |
 
-组合示例：`https://lep-ton.github.io/ui-theme-hub/?scene=enterprise&installed=boss-theme-blue`
+组合示例：`https://lep-ton.github.io/ui-theme-hub/?scene=b2b&installed=boss-theme-blue`
 
 按照示例打开浏览器访问主题市场。
 
@@ -88,10 +88,10 @@ find {themeDir} -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | paste -sd
 
 | 条件 | 行为 |
 |------|------|
-| 用户指定 theme | 直接使用，不询问 |
-| 场景有唯一 theme | 直接使用，不询问 |
-| 场景有多个 theme | 简短询问选择哪个 |
-| 场景无 theme | 提示安装默认 theme |
+| 用户指定有效的 Theme `dir` 或唯一 `name` | 直接使用，不询问 |
+| 场景只有一个合理候选 | 直接使用，不询问 |
+| 场景有多个合理候选 | 展示 `name` + `dir`，简短询问选择哪个 |
+| 没有合理候选 | 说明未匹配，并提供主题市场入口 |
 
 **仅询问一次**，不得反复追问。
 

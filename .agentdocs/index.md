@@ -1,6 +1,11 @@
 # AgentDocs 索引
 
 ## 当前变更文档
+`workflow/20260814154800-restore-codex-frontmatter.md` - 恢复 Codex 识别所需的最小 YAML frontmatter，并限制为用户主动调用时触发
+`workflow/20260814151727-manual-skill-entry-theme-parse.md` - 删除 SKILL 自动触发 frontmatter，并将 Phase 3 精简命名为“主题解析”
+`workflow/20260806144736-archive-skill-explorations.md` - 集中归档 SKILL 工作流基线与候选方案，建立共同基线和 derivedFrom 映射
+`workflow/20260805224934-add-skill-new-workflow.md` - 新增重组后的候选版 SKILL_NEW：先分析项目，再决策 Theme、组装 UI、实现并验证
+`workflow/20260803231617-optimize-skill-workflow.md` - 优化面向 AI 的六阶段主题工作流，并与 ui-theme-hub 的 dir/components/previews/b2b 协议对齐
 `workflow/20260731153852-local-theme-detect-command.md` - 本地主题检索补"零维护"探测命令（替代索引文件，zsh/bash 兼容）
 `workflow/20260731140000-revert-to-platform-agnostic.md` - 回退 plugin/hook，改为平台无关手动调用 skill（保留骨架化 + SDO）
 `workflow/20260731133000-superpowers-auto-trigger-plugin.md` - 借鉴 superpowers 自动触发机制：升级为 Plugin + SessionStart hook 注入 bootstrap（已回退）
@@ -28,7 +33,7 @@
 - 设计哲学：**手动调用而非自动触发**——用户有 UI 需求时主动让 AI 读取 SKILL.md；不采用 superpowers 的 hook 自动触发（平台专属，会引入多 agent 兼容问题）
 - 平台无关：skill 内容不写死平台专属变量（${CLAUDE_PLUGIN_ROOT}）或工具名（Skill 工具），任何 agent 能读文件即可用
 - 渐进式披露：SKILL.md 骨架 5018 字节（原 14065），详细规则按需从 references/ 加载
-- description 规则（SDO）：只写 when 不写 what，以 "Use when..." 开头，含时机锚点
+- 启动方式：根 `SKILL.md` 只保留 Codex 识别所需的 name/description；description 明确仅在用户主动点名 skill 或要求读取文件时触发
 - Token 格式：参考 W3C Design Tokens 分组思路，简化为扁平 JSON + references/token-dictionary.md 语义字典
 - 协作模型：设计师维护 Theme，AI 负责组装
 - 已安装 Theme：boss-theme(B端) / game-theme(游戏) / apple-theme(C端/营销/移动)

@@ -8,29 +8,29 @@
 每个 theme 是 `{themeDir}`（`theme-config.json` 配置的本地主题目录）下的一个子目录，必须包含 `theme.json`：
 
 ```
-{theme-name}/
+{dir}/
 ├── theme.json              # 必需：介绍页 + tokens（单文件）
 ├── patterns/               # 可选：页面/区块模板
 │   ├── pages/
-│   └── blocks/
+│   └── components/
 ├── standards/              # 可选：场景专属设计规范
 ├── assets/                 # 可选：物料素材
 │   ├── icons/
 │   ├── illustrations/
 │   └── fragments/
-└── examples/               # 可选：市场预览截图（.png/.webp）
+└── previews/               # 可选：市场预览截图（.png/.webp）
 ```
 
 ## theme.json 格式
 
 ```json
 {
-  "name": "boss-theme",
+  "name": "Boss蓝",
   "version": "1.0.0",
   "description": "B端管理系统主题",
   "author": "设计团队",
-  "scene": "b-end",
-  "tags": ["b-end", "management"],
+  "scene": "b2b",
+  "tags": ["b2b", "management"],
   "requires": [
     { "name": "antd", "source": "https://github.com/ant-design/ant-design" }
   ],
@@ -70,6 +70,8 @@
 ### 介绍信息字段
 
 - `name` / `version` / `description` / `author` / `scene` / `tags`：介绍信息
+- `dir` 不写入 theme.json；它由主题目录名决定，是下载、安装、URL 与本地匹配使用的机器唯一标识
+- `name` 是面向用户的显示名称，不得代替 `dir` 拼接路径或 URL
 
 ### requires 字段
 
