@@ -7,114 +7,125 @@ description: Theme-based UI implementation workflow. Use only when the user expl
 <!-- 详细规则按需从 references/ 加载，避免一次性消耗大量 token。 -->
 <!-- 用户需要产出符合标准的 UI 时，手动让 AI 读取本 SKILL.md 即可触发完整工作流。 -->
 
-# UI Design Skill — Theme 插件化架构
+# UI Design Skill — Theme 驱动的 UI 实现与视觉闭环工作流
 
-## 核心理念
+## 核心原则
 
-- **Theme 可以独立演进**：每个 theme 自带完整的设计资产
-- **设计师负责 Theme**，**AI 负责组装**
-- **统一主题仓库**：所有主题集中在一个 Git 仓库（`ui-theme-hub`，`https://github.com/LeP-Ton/ui-theme-hub/`）中管理，AI 从该仓库发现和安装主题
-- 规范靠 SKILL.md 定义，质量靠 AI 安装时校验
+- **先理解项目，再选择 Theme**：Theme 必须适配目标项目，不得反向强迫项目迁移技术栈
+- **设计师维护 Theme，AI 负责组装、实现与验证**
+- **Theme 是设计输入，不是可直接覆盖项目的代码模板**
+- **只使用已确认存在的 tokens、patterns、standards 和 assets**，不得虚构 Theme 内容
+- **视觉结果必须验证**：可运行且具备截图能力时，必须完成“运行 → 截图 → 评估 → 修改 → 再评估”闭环
+- **渐进式加载**：只读取当前任务需要的 Theme 文件和 reference
 
-## 工作流（6 阶段）
+## 六阶段主流程
 
-> **REQUIRED:** 生产UI时必须依次完成 6 个阶段的判定，不得跳过。某阶段没有可用资源时，明确记录“无匹配资源”并继续，不得虚构 Theme 内容。
-> **主题搜索/安装/卸载/访问/校验的详细命令与规则**：见 `references/theme-management.md`
+> **REQUIRED:** 生产 UI 时必须依次完成六个阶段的判定。阶段可以在无适用资源时快速通过，但不得省略判断。
+> 仅在需要用户选择、发现冲突、需要额外授权、存在风险或最终交付时沟通；不要机械输出每阶段进度。
 
-### Phase 1: 场景识别
+### Phase 1：需求与项目分析
 
-读取统一主题仓库的 `docs/themes-summary.json`，根据 `scene` + `tags` + `description` 语义匹配用户意图。主题的机器唯一标识是 `dir`，`name` 仅用于展示：
+先明确交付目标和实现环境：
 
-1. 用户明确指定 Theme 的 `dir` 或唯一 `name` 时，直接选择该 Theme
-2. 否则，从 themes-summary.json 提取各 Theme 的 `dir`、`name`、`scene`、`tags`、`description`
-3. 将用户输入与 `scene`、`tags`、`description` 做语义匹配
-4. 匹配结果唯一时直接使用；有多个合理候选时，列出 `name` + `dir` 简短询问一次
-5. 未匹配到任何 Theme 时，说明没有匹配项，并给出主题市场入口，不得擅自选择“默认主题”
+1. 识别交付范围：页面、区块、组件、原型或现有界面改造
+2. 提取场景、目标用户、核心任务、内容层级、交互状态和响应式要求
+3. 检查目标项目已有的框架、组件库、样式方案、Design Token 机制、依赖版本、目录约定和运行方式
+4. 记录用户明确指定的 Theme、技术栈和不可变约束
 
-识别优先级：用户明确指定 Theme > 用户指定场景 > 语义匹配。
+技术决策优先级：用户明确指定 > 目标项目已有 > Theme 推荐。
 
-**NEXT:** 场景识别完成后，进入 Phase 2 加载主题。
+缺少的信息不会改变总体方案时，采用保守假设继续；只有会显著改变结果时才询问用户。
 
-### Phase 2: 主题加载
+### Phase 2：Theme 决策与就绪
 
-加载 Phase 1 选定的 Theme：
+#### 2.1 选择 Theme
 
-1. 先读取 `theme-config.json`（与 SKILL.md 同目录）获取 `themeDir`（绝对路径，若未配置则提示用户设置）
-2. 使用 Theme 的 `dir` 检查 `{themeDir}/{dir}/theme.json`，不得用显示名称猜测目录
-3. 若未安装，从 GitHub Pages 下载 `{dir}.zip` 并解压到 `{themeDir}`
-4. 按 `references/theme-management.md` 校验安装结果；失败时停止使用该 Theme，并报告具体缺失项
+Theme 的机器唯一标识是 `dir`，`name` 仅用于展示：
 
-加载 Theme 后，仅按当前任务需要读取，避免无差别加载全部上下文：
-- `theme.json` 中的 `tokens`：Design Token
-- `patterns/`：页面/组件模板
-- `standards/`：设计标准规范
-- `assets/`：物料素材
+1. 用户指定有效 `dir` 或唯一 `name` 时直接选择
+2. 否则读取统一主题仓库的 `docs/themes-summary.json`
+3. 根据需求与各 Theme 的 `scene`、`tags`、`description` 做语义匹配
+4. 只有一个合理候选时直接选择；有多个时展示 `name` + `dir`，简短询问一次
+5. 没有合理候选时说明未匹配，并提供主题市场入口；不得擅自选择默认 Theme
 
-**NEXT:** 主题加载完成后，进入 Phase 3 解析主题。
+选择优先级：用户明确指定 Theme > 用户指定场景 > 语义匹配。
 
-### Phase 3: 主题解析
+#### 2.2 确保 Theme 可用
 
-在匹配模板前确定实现边界：
+1. 读取与本文件同目录的 `theme-config.json`，获得绝对路径 `themeDir`
+2. 检查 `{themeDir}/{dir}/theme.json`
+3. 未安装时才执行下载安装子流程
+4. 校验 Theme；校验失败时停止使用并报告具体问题
 
-1. 检查目标项目现有的框架、组件库、样式方案和版本约束
-2. 读取 `theme.json.requires`，判断 Theme 依赖与目标项目是否兼容
-3. 技术体系优先级：用户明确指定 > 目标项目已有 > Theme 推荐；存在冲突时先说明影响，不得静默改造项目技术栈
-4. 按任务场景读取 `standards/` 中相关规范作为设计总纲；没有匹配规范时记录为空并继续
+> 主题搜索、安装、卸载、访问市场和校验规则见 `references/theme-management.md`。
 
-> **requires 字段格式与技术体系推断规则**：见 `references/theme-structure.md`
+### Phase 3：设计规则解析
 
-**NEXT:** 主题解析完成后，进入 Phase 4 匹配模板。
+按当前任务需要读取 Theme，而不是一次加载全部内容：
 
-### Phase 4: 模板匹配
+1. 读取 `theme.json`，获得 `tokens` 和 `requires`
+2. 判断 `requires` 与 Phase 1 的项目环境是否兼容
+3. 只读取与当前页面和场景相关的 `standards/*.md`
+4. 将通用 Token 与 `extended` Token 的语义映射到当前 UI 需求
+5. 若 Theme 规则与用户要求或项目约束冲突，采用“用户要求 > 项目约束 > Theme 规则”，并说明取舍
 
-从 theme 的 `patterns/` 中选择模板：
-- `patterns/pages/`：页面级模板
-- `patterns/components/`：组件级模板
+本阶段形成视觉语义、布局原则、组件风格、交互规则和技术边界。
 
-优先选择与需求语义和目标技术体系兼容的 Pattern。Pattern 是设计与结构参考，不得不经检查就覆盖目标项目代码。
+> Theme 结构与 `requires` 规则见 `references/theme-structure.md`。
+> Token 使用语义见 `references/token-dictionary.md`。
 
-若 Theme 中无匹配 Pattern，记录为空，并基于 tokens + standards 设计；不得虚构不存在的模板。
+### Phase 4：UI 方案组装
 
-**NEXT:** 模板选定后，进入 Phase 5 匹配物料。
+在写代码前形成完整方案：
 
-### Phase 5: 物料匹配
+1. 从 `patterns/pages/` 匹配页面级 Pattern
+2. 从 `patterns/components/` 匹配组件级 Pattern
+3. 从 `assets/` 匹配 icons、illustrations 和 fragments
+4. 确定信息架构、页面区块、组件层级、关键状态和响应式行为
+5. 确定 Theme Token 到项目变量、主题配置或组件 Token 的映射方式
 
-从 Theme 的 `assets/` 目录匹配物料（icons / illustrations / fragments）。
+组装规则：
 
-- 只使用已确认存在的资产路径，并遵循 `standards/` 中的物料说明
-- 模型无法识图时，依据文件名和 standards 判断；信息不足则报告风险，不得猜测图片内容
-- 没有匹配物料时记录为空并继续，不得用占位路径伪装真实资产
+- Pattern 是结构和视觉参考，必须先检查其技术体系与目标项目是否兼容
+- 只引用已确认存在的资产路径
+- 模型无法识图时，可依据文件名和 standards 判断；信息不足时报告风险，不得猜测图片内容
+- 没有匹配 Pattern 或 asset 时记录为空，基于 tokens + standards 自行设计，不得虚构资源
 
-**NEXT:** 物料齐备后，进入 Phase 6 生成代码。
+### Phase 5：代码实现
 
-### Phase 6: 代码生成
+按照 Phase 4 的方案修改目标项目：
 
-结合目标项目上下文与已确认的 tokens + patterns + assets + standards 生成代码。
+- 遵循目标项目现有架构、命名、组件组织和注释风格
+- 优先复用项目已有组件和依赖，不因 Theme 的 `requires` 擅自引入或升级包
+- 将 Theme tokens 接入项目已有 Token 机制；没有现成机制时建立集中、可复用的变量或配置
+- 遵循已加载的 standards，以选定 Pattern 为参考，并使用已确认的 assets
+- 实现需求涉及的 loading、empty、error、disabled、hover、focus 等状态
+- 保证与需求相称的响应式、键盘操作、语义结构和可读对比度
+- 禁止硬编码 Theme 已定义的颜色、间距、字体、圆角、阴影和动效值
 
-- 遵循 Phase 3 确定的技术体系，不因 Theme 推荐依赖而擅自引入或升级包
-- 将 Theme tokens 映射为目标项目可复用的变量或配置；优先复用项目现有 Token 机制
-- 遵循已加载的 standards，并以选定 Pattern 为结构和视觉参考
-- 只引用 Phase 5 确认存在的资产
-- **禁止硬编码 Theme 已定义的颜色、间距、字体、圆角、阴影和动效值；必须引用对应 Token**
-- 修改完成后运行与变更范围相称的检查；无法运行时明确说明未验证项
+### Phase 6：视觉验证闭环与交付
 
-> **Token 语义字典（生成代码时必须按语义使用 token）**：见 `references/token-dictionary.md`
+实现完成后，读取 `references/visual-validation.md` 并执行与任务范围相称的验证：
 
-## 子流程交叉引用
+1. 运行构建、类型检查、Lint 和相关测试，确认界面具备可靠的渲染基础
+2. 建立需求驱动的截图矩阵，覆盖主视口以及需求涉及的响应式断点和关键状态
+3. 运行或复用预览环境，等待界面稳定后采集真实截图
+4. 对照用户要求、Theme tokens、standards、Pattern 和目标项目约束评估截图
+5. 若存在阻断或主要问题，在剩余轮次内修改代码并重新检查、截图和评估
 
-| 需求 | 读取 |
+最多执行 3 个完整验证轮次。不存在阻断和主要问题时即为通过；次要问题可以保留，但必须在交付说明中列出。第 3 轮后仍未通过时停止自动修改并报告剩余问题，不得宣称已经通过。
+
+若目标界面无法运行或当前环境没有截图能力，执行可完成的静态与运行检查，并明确标记“视觉验证未完成”及原因；不得用代码检查代替截图评估，也不得为完成截图擅自引入依赖或改变项目技术体系。
+
+交付时说明采用的 Theme、实际验证命令、截图覆盖范围、迭代轮次、已修复问题、遗留次要问题和未验证风险。
+
+## 按需子流程
+
+| 情况 | 读取 |
 |------|------|
-| 主题搜索/安装/卸载/访问/校验 | `references/theme-management.md` |
-| theme.json 格式与 Theme 结构约定 | `references/theme-structure.md` |
-| Token 语义字典（6 维度详细表） | `references/token-dictionary.md` |
+| 主题搜索、安装、卸载、访问市场、安装校验 | `references/theme-management.md` |
+| 创建或理解 Theme、解析 `requires` | `references/theme-structure.md` |
+| 生成代码或映射 Design Token | `references/token-dictionary.md` |
+| 运行界面、截图、视觉评估、修改和再评估 | `references/visual-validation.md` |
 
-## 主题询问规则
-
-| 条件 | 行为 |
-|------|------|
-| 用户指定有效的 Theme `dir` 或唯一 `name` | 直接使用，不询问 |
-| 场景只有一个合理候选 | 直接使用，不询问 |
-| 场景有多个合理候选 | 展示 `name` + `dir`，简短询问选择哪个 |
-| 没有合理候选 | 说明未匹配，并提供主题市场入口 |
-
-**仅询问一次**，不得反复追问。
+主题管理不是每次 UI 实现的固定主阶段：Theme 已安装且有效时，只需完成可用性检查后继续。

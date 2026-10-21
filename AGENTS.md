@@ -9,11 +9,12 @@
 - **渐进式披露**：SKILL.md 只保留骨架，详细规则按需从 references/ 加载
 
 ## 架构
-- **SKILL.md**：包含 Codex 识别所需的最小 frontmatter（`name` + `description`），description 明确限制为用户主动点名 skill 或要求读取文件时才触发；正文承载 6 阶段工作流骨架（场景识别 + 主题加载 + 主题解析 + 模板匹配 + 物料匹配 + 代码生成）
+- **SKILL.md**：包含 Codex 识别所需的最小 frontmatter（`name` + `description`），description 明确限制为用户主动点名 skill 或要求读取文件时才触发；正文承载 V2.1 六阶段闭环（需求与项目分析 + Theme 决策与就绪 + 设计规则解析 + UI 方案组装 + 代码实现 + 视觉验证闭环与交付）
 - **references/**：按需加载的详细规则
   - `theme-management.md`：主题搜索/安装/卸载/校验
   - `theme-structure.md`：theme.json 格式与结构约定
   - `token-dictionary.md`：Token 语义字典（6 维度）
+  - `visual-validation.md`：需求驱动截图矩阵、视觉评估、问题分级、三轮停止条件与能力降级
 - **explorations/skill-workflows/**：根目录 `SKILL.md` 的版本档案，使用 `SKILL_V{major}.{minor}.md → SKILL.md` 映射；`README.md` 维护版本来源和 `derivedFrom`。目录内文件不可直接注册，根目录 `SKILL.md` 是唯一正式入口
 - **统一主题仓库（ui-theme-hub）**：集中管理所有主题的 Git 仓库（`https://github.com/LeP-Ton/ui-theme-hub/`），AI 从该仓库发现和安装主题
 - **theme-config.json**：主题目录配置文件（与 SKILL.md 同目录），`themeDir` 字段指定主题存放目录（绝对路径）
@@ -39,7 +40,7 @@ theme.json 包含介绍信息和运行时配置：
 
 ## 协作模型
 - 设计师：维护 Theme（PR 到统一主题仓库）
-- AI：从统一主题仓库发现+安装 Theme + 校验 + 加载 + 组装代码
+- AI：从统一主题仓库发现、安装并加载 Theme，完成 UI 组装、代码实现与视觉验证闭环
 
 ## 关键设计决策
 - 引擎逻辑全在 SKILL.md 骨架中，详细规则分散到 references/（Claude 只自动读取 SKILL.md 骨架，按需加载 references）
@@ -53,6 +54,7 @@ theme.json 包含介绍信息和运行时配置：
 - **SKILL.md 拆骨架 + references/ 渐进式披露**：从 14065 字节降到 5018 字节，调用时省 token；详细规则按需加载
 - **平台无关化**：skill 内容不写死平台专属变量/工具名，任何 agent 能读文件即可用，避免多平台适配工程
 - **最小识别 frontmatter**：根 `SKILL.md` 只声明 Codex 必需的 `name` 与 `description`，不放 `license`；description 明确排除普通 UI/前端请求，兼顾可识别与仅主动调用
+- **V2.1 视觉闭环**：正式工作流采用“运行 → 截图 → 评估 → 修改 → 再评估”，最多执行 3 个完整验证轮次；无阻断和主要问题时通过，缺少预览或截图能力时降级检查并明确标记视觉验证未完成
 - **本地主题检索不建索引文件**：本地（`{themeDir}`）不维护 `installed-summary.json` 之类的派生索引——派生数据有一致性维护成本（安装/卸载需同步，用户手动删目录会脏数据），且本地主题数量少索引收益不显著。改为在 `references/theme-management.md` 固化两条零维护探测命令：① for 循环读各 `theme.json` 的 name/scene/tags；② `find` 提取目录名拼 `?installed=`。直接读源文件，即时正确。zsh 兼容：for 循环加 `setopt nullglob`，列目录用 `find -mindepth 1 -maxdepth 1`（避免 zsh `nomatch` 空目录报错）
 
 ## Token 设计思路

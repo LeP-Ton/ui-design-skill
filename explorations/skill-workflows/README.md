@@ -16,6 +16,7 @@ explorations/skill-workflows/SKILL_V{version}.md → SKILL.md
 | `SKILL_V1.1.md` | `SKILL.md` | `SKILL_NEW1.md` / `23fa40f` | `SKILL_V1.0` | Phase 3 改为 standards 解析 | 候选 |
 | `SKILL_V1.2.md` | `SKILL.md` | `81c11b5:SKILL.md` | `SKILL_V1.1` | Phase 3 合并项目上下文、requires 与 standards | 候选 |
 | `SKILL_V2.0.md` | `SKILL.md` | `SKILL_NEW2.md` | `SKILL_V1.1` | 重组为项目分析到验证交付的端到端流程 | 候选 |
+| `SKILL_V2.1.md` | `SKILL.md` | 会话-3 | `SKILL_V2.0` | 加入运行、截图、评估、修改与再评估的三轮视觉闭环 | 当前正式版 |
 
 ## 版本关系
 
@@ -25,12 +26,14 @@ SKILL.md
     └── SKILL_V1.1 (23fa40f)
         ├── SKILL_V1.2 (81c11b5)
         └── SKILL_V2.0
+            └── SKILL_V2.1 (current)
 ```
 
 版本号表达方案变化幅度：
 
 - `V1.x`：保持原六阶段总体结构，在阶段职责内部演进。
 - `V2.0`：重新划分六阶段职责和执行顺序，属于主流程级变化。
+- `V2.1`：沿用 V2.0 阶段职责，补齐基于真实截图的视觉验证、自修正和停止条件。
 
 ## 使用约定
 
